@@ -11,12 +11,12 @@ servidor.listen(5)
 print("Servidor iniciado en:", ip, "puerto", puerto)
 
 def atender(cliente, direccion):
-    print("Se conecto:", direccion)
+    print("Se conectó:", direccion)
     cliente.send("Decime tu nombre de usuario: ".encode())
     nombre = cliente.recv(1024).decode().strip()
 
     while True:
-        cliente.send("Escribi un comando (/repost o /adios): ".encode())
+        cliente.send("Escribí un comando (/repost o /adios): ".encode())
         entrada = cliente.recv(1024).decode().strip()
 
         if entrada == "/repost":
@@ -25,21 +25,23 @@ def atender(cliente, direccion):
                 if r.status_code == 200:
                     data = r.json()
                     persos = data["items"][:5]
-                    respuesta = "Hola " + nombre + ", te paso algunos personajes:\n"
+                    respuesta = f"Hola {nombre}, te paso algunos personajes:\n"
                     for p in persos:
-                        respuesta += "- " + p["name"] + " (" + p["race"] + ")\n"
+                        raza = p.get("race", "desconocida")
+                        origen = p.get("originPlanet", "desconocido")
+                        respuesta += f"- {p['name']} ({raza}) | Origen: {origen}\n"
                 else:
                     respuesta = "No se pudo traer info de la API"
             except:
-                respuesta = "Ocurrio un error con la API"
+                respuesta = "Ocurrió un error con la API"
             cliente.send(respuesta.encode())
 
         elif entrada == "/adios":
-            cliente.send("Chau, se cerro la conexion.".encode())
-            print(nombre, "se desconecto.")
+            cliente.send("Chau, se cerró la conexión.".encode())
+            print(nombre, "se desconectó.")
             break
         else:
-            cliente.send("No entendi ese comando.".encode())
+            cliente.send("No entendí ese comando.".encode())
 
     cliente.close()
 
